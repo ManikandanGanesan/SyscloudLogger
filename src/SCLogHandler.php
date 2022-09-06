@@ -330,7 +330,7 @@ class SCLogHandler
     {
         if(!self::$_fileStreamHandler)
         {
-            self::$_fileStreamHandler =  new StreamHandler("php://stdout", Logger::DEBUG);
+            self::$_fileStreamHandler =  new StreamHandler("php://stderr", Logger::DEBUG);
             $formatter = new \Monolog\Formatter\JsonFormatter();
             self::$_fileStreamHandler->setFormatter($formatter);
         }
