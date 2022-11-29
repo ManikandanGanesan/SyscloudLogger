@@ -43,6 +43,9 @@ class SCLogHandler
         $handlers = $streams['monolog'];
         foreach($handlers as $handler)
         {
+           if($configs['formatter'] == 'json'){
+              $handler->setFormatter(new JsonFormatter());
+            }
             $pushHandler = $logger->pushHandler($handler);
         }
 
