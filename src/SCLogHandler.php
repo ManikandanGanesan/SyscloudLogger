@@ -7,6 +7,7 @@ use SyscloudLogger\SCLogger\LogToDB;
 use Monolog\Logger;
 use Monolog\Handler\StreamHandler;
 use Monolog\Handler\RedisHandler;
+use Monolog\Formatter\JsonFormatter;
 
 
 class SCLogHandler
