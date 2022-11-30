@@ -105,13 +105,14 @@ class SecretsManager
         return $result;
     }
     
-    
-    private static function getAPIResponse($url) {
+    // call usign curl
+    private static function getHttpRes($method, $url, $headers = null, $body = null) {
         for ($i = 0; $i < self::$maxRetry; $i++) {
-            $headers = [
-                'X-Requestor-Id: Monologger',   
-                ];
             $ch = curl_init($url);
+            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
+            if($body){
+                curl_setopt($ch, CURLOPT_POSTFIELDS, $body);
+            }
             curl_setopt($ch, CURLOPT_FOLLOWLOCATION, false);
             curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);        
@@ -133,4 +134,38 @@ class SecretsManager
         }
         throw new \Exception('Failed to get the secret key :: $url = '.$url.' :: with '.$responseCode.' :: '.$error);
     }
+    
+     public static function getAccessToken() {
+        $url = self::$hostName . 'auth';
+        if (sysCloudCache::hasKey('secretaccesstoken')) {
+            $value = sysCloudCache::get('secretaccesstoken');
+            if (!empty($value)) {
+                return $value['accessToken'];
+            }
+        }
+        $strTime = microtime(true);
+        $headers = ['Content-Type:application/json'];
+        $cred= array("username" => "Monologger",
+                             "clientid" => "39",
+                            "password" => "I95X1T8N1SY7G4") ;
+        $body = json_encode($cred);
+        $response = self::getHttpRes("POST", $url, $headers, $body);
+        $response = json_decode($response, true);
+        sysCloudCache::set('secretaccesstoken', $response, self::$ttl);
+        return $response['accessToken'];
+    }
+    
+    private static function getAPIResponse($url) {
+        $accessToken = self::getAccessToken();
+        $headers = [
+            "Content-Type:application/json",
+            "x-access-token: $accessToken",
+            "X-Requestor-Id: Monologger"  
+        ];
+	return self::getHttpRes("GET", $url, $headers);
+        }
+    
+    
 }
+
+
