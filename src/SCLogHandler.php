@@ -217,7 +217,7 @@ class SCLogHandler
                 break;
         }
         
-        return json_encode($errorText);
+        return $errorText;
     }
     
     /**
